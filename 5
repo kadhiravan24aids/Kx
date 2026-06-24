@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+
+def generate_data():
+    np.random.seed(42)
+    input_data = np.random.rand(100)
+    labels = np.where(input_data <= 0.5, 'Class1', 'Class2')
+    return input_data, labels
+
+def knn_classification(training_data, training_labels, test_data, k):
+    predictions = []
+    for point in test_data:
+        distances = np.abs(training_data - point)
+        nearest_indices = np.argsort(distances)[:k]
+        nearest_labels = training_labels[nearest_indices]
+        predictions.append(Counter(nearest_labels).most_common(1)[0][0])
+    return predictions
+
+def main():
+    input_data, labels = generate_data()
+    training_data = input_data[:50]
+    training_labels = labels[:50]
+    test_data = input_data[50:]
+    
+    for k in [1, 2, 3, 4, 5, 20, 30]:
+        predicted_labels = knn_classification(training_data, training_labels, test_data, k)
+        print(f"For k={k}, Predictions: {predicted_labels}")
+        
+        colors = ["blue" if label == "Class1" else "red" for label in training_labels]
+        
+        plt.figure()
+        plt.scatter(training_data, [0] * len(training_data), c=colors, label="Train Data")
+        plt.scatter(test_data, [0] * len(test_data), marker='x', c='green', label="Test Data")
+        plt.legend()
+        plt.xlabel("x values")
+        plt.title(f"KNN Classification (k={k})")
+        plt.show()
+
+if __name__ == "__main__":
+    main()
