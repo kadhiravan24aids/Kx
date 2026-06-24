@@ -1,0 +1,26 @@
+import pandas as pd
+
+df = pd.read_csv("find_s.csv")
+
+print(df.head())
+print(df.shape)
+df.info()
+print(df.isnull().sum())
+print(df.describe())
+
+def find_s_algorithm(data, target_col):
+    features = data.columns[1:-1]
+    hypothesis = None
+    
+    for i, row in data.iterrows():
+        if row[target_col] == "Yes":
+            if hypothesis is None:
+                hypothesis = row[features].tolist()
+            else:
+                for j in range(len(hypothesis)):
+                    if hypothesis[j] != row[features].iloc[j]:
+                        hypothesis[j] = "?"
+    return hypothesis
+
+final_hypothesis = find_s_algorithm(df, "EnjoySport")
+print("Most Specific Hypothesis:", final_hypothesis)
