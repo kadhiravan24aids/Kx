@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("california_housing.csv")
+
+df.info()
+
+print(df.isnull().sum())
+
+mode1 = df['total_bedrooms'].mode().values[0]
+df['total_bedrooms'] = df['total_bedrooms'].replace(np.nan, mode1)
+
+print(df.isnull().sum())
+
+def outlier(col):
+    Q1, Q3 = col.quantile([0.25, 0.75])
+    IQR = Q3 - Q1
+    return Q1 - 1.5 * IQR, Q3 + 1.5 * IQR
+
+col = ['longitude', 'latitude', 'housing_median_age', 'total_rooms', 'total_bedrooms', 'population', 'households', 'median_income']
+for c in col:
+    lower, upper = outlier(df[c])
+    df[c] = df[c].clip(lower, upper)
+
+plt.figure(figsize=(20, 17))
+df.boxplot()
+plt.show()
+
+numeric_df = df.select_dtypes(include=['number'])
+corr_matrix = numeric_df.corr()
+print(corr_matrix)
+
+plt.figure(figsize=(12, 6))
+sns.heatmap(numeric_df.corr(), annot=True, fmt='.2f', cmap='coolwarm')
+plt.show()
+
+sns.pairplot(df[['housing_median_age', 'total_rooms', 'median_house_value']])
+plt.show()
